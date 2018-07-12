@@ -53,7 +53,7 @@ Function Get-WSDPortIP {
     which should look something like 'WSD-96d31e...' and search the HKLM registry hive for the particualr key that contains the
     IP Address of the network printer. 
 
-    .PARAMETER ComputerName
+    .PARAMETER WSDPort
     Portname of printer(s) configured via WSD
 
     .EXAMPLE
