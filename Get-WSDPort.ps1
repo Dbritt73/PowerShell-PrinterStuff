@@ -21,7 +21,7 @@ Function Search-RegistryHive {
     Param (
 
         [Parameter( Mandatory = $true,
-                    HelpMessage = "Keyword to search Registry for")]
+                    HelpMessage = 'Keyword to search Registry for')]
         [string]$searchText,
 
         [Parameter()]
@@ -82,7 +82,7 @@ Function Get-WSDPortIP {
                     ValueFromPipelineByPropertyName = $true,
                     ValueFromPipeline = $True,
                     Position = 0,
-                    HelpMessage = "Portname of printer configured via WSD - Helpful cmdlet -> Get-printer | Select name, portname")]
+                    HelpMessage = 'Portname of printer configured via WSD - Helpful cmdlet -> Get-printer | Select name, portname')]
         [string[]]$WSDPort
 
     )
@@ -92,29 +92,54 @@ Function Get-WSDPortIP {
     Process {
 
         foreach ($port in $WSDPort) {
+            
+            Try {
 
-            $Subkeys = (Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText $Port) -replace '^[^\\]*', 'HKLM:'
+                $Subkeys = (Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText $Port) -replace '^[^\\]*', 'HKLM:'
 
 
-            $Subkeys | ForEach-Object {
-    
-                if ($_ -like "*PrinterDriverData") {
-    
-                    $KeyProps = Get-ItemProperty $_
-    
-                    $props = @{
-    
-                        'WsdPort' = $Port;
-                        'IPAddress' = ($KeyProps.HPEWSIPAddress).Split(',')[0]
-    
+                $Subkeys | ForEach-Object {
+        
+                    if ($_ -like '*PrinterDriverData') {
+        
+                        $KeyProps = Get-ItemProperty -Path $_
+        
+                        $props = @{
+        
+                            'WsdPort' = $Port
+
+                            'IPAddress' = ($KeyProps.HPEWSIPAddress).Split(',')[0]
+        
+                        }
+        
+                        $Object = New-Object -TypeName PSObject -Property $props
+                        $object.PSObject.typenames.insert(0,'WSDPort.IPAddress')
+                        Write-Output -InputObject $Object
+        
                     }
-    
-                    $Object = New-Object -TypeName PSObject -Property $props
-                    $object.PSObject.typenames.insert(0,'WSDPort.IPAddress')
-                    Write-Output -InputObject $Object
-    
+        
                 }
-    
+
+            } Catch {
+            
+                # get error record
+                [Management.Automation.ErrorRecord]$e = $_
+
+                # retrieve information about runtime error
+                $info = [PSCustomObject]@{
+                
+                  Exception = $e.Exception.Message
+                  Reason    = $e.CategoryInfo.Reason
+                  Target    = $e.CategoryInfo.TargetName
+                  Script    = $e.InvocationInfo.ScriptName
+                  Line      = $e.InvocationInfo.ScriptLineNumber
+                  Column    = $e.InvocationInfo.OffsetInLine
+                  
+                }
+                
+                # output information. Post-process collected info, and log info (optional)
+                $info
+                
             }
 
         }
