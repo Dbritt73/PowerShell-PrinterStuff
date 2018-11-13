@@ -79,7 +79,7 @@ Function Get-RemoteWSDPortIP {
     [CmdletBinding()]
     Param (
 
-        [String[]]$ComputerName
+    [String[]]$ComputerName
 
     )
 
@@ -100,35 +100,35 @@ Function Get-RemoteWSDPortIP {
                         'Path' = 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers';
                         'SearchText' = "$Port";
                         'ComputerName' = "$Computer"
-                        
-                    }
+    
+                    }    
 
-                    $Subkeys = (Search-RegistryHive @Params) -replace '^[^\\]*', 'HKLM:'
+                    $Subkeys = (Search-RemoteRegistryHive @Params) -replace '^[^\\]*', 'HKLM:'
 
                     $Subkeys | ForEach-Object {
-            
+
                         if ($_ -like '*PrinterDriverData') {
-            
+
                             $KeyProps = Invoke-Command -ScriptBlock {Get-ItemProperty -Path $Using:_} -ComputerName $Computer
-            
+
                             $props = [Ordered]@{
 
                                 'ComputerName' = $Computer
 
                                 'Printer' = ($Printer | Where-Object {$_.PortName -eq $Port}).Name
-            
+
                                 'WsdPort' = $Port
-    
+
                                 'IPAddress' = ($KeyProps.HPEWSIPAddress).Split(',')[0]
-            
+
                             }
-            
+
                             $Object = New-Object -TypeName PSObject -Property $props
                             $object.PSObject.typenames.insert(0,'WSDPort.IPAddress')
                             Write-Output -InputObject $Object
-            
+
                         }
-            
+
                     }
 
                 }
@@ -149,7 +149,7 @@ Function Get-RemoteWSDPortIP {
                     Column    = $e.InvocationInfo.OffsetInLine
 
                 }
-                
+
                 # output information. Post-process collected info, and log info (optional)
                 $info
 
