@@ -95,7 +95,15 @@ Function Get-RemoteWSDPortIP {
 
                 foreach ($port in $Printer.PortName) {
 
-                    $Subkeys = (Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText "$Port" -ComputerName "$Computer") -replace '^[^\\]*', 'HKLM:'
+                    $Params = @{
+
+                        'Path' = 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers';
+                        'SearchText' = "$Port";
+                        'ComputerName' = "$Computer"
+                        
+                    }
+
+                    $Subkeys = (Search-RegistryHive @Params) -replace '^[^\\]*', 'HKLM:'
 
                     $Subkeys | ForEach-Object {
             
