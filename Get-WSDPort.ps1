@@ -1,12 +1,11 @@
 Function Search-RegistryHive {
 <#
-
     .SYNOPSIS
     Search Registry path for specific keyword
 
     .DESCRIPTION
     Search-RegistryHive will search the given path for specifc keywords and output the full path to Registry keys
-    that contain that keyword 
+    that contain that keyword
 
     .EXAMPLE
     Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText $Port
@@ -44,14 +43,13 @@ Function Search-RegistryHive {
 
 Function Get-WSDPortIP {
 <#
-
     .SYNOPSIS
     Resolve IP Address of a network printer mapped via a WSD port
 
     .DESCRIPTION
     If a network printer is configured on a computer using a WSD port, Get-WSDPortIP will take the portname of the printer
     which should look something like 'WSD-96d31e...' and search the HKLM registry hive for the particualr key that contains the
-    IP Address of the network printer. 
+    IP Address of the network printer.
 
     .PARAMETER WSDPort
     Portname of printer(s) configured via WSD
@@ -69,8 +67,8 @@ Function Get-WSDPortIP {
 
     .NOTES
     Writtren as a helper function for a larger script to query printer information on computers in various OU's and output
-    to database so that we can create print queues on a print server and Print mapping GPO's 
-    
+    to database so that we can create print queues on a print server and Print mapping GPO's
+
     Works on PowerShell 3.0 and higher
 
 #>
@@ -92,54 +90,52 @@ Function Get-WSDPortIP {
     Process {
 
         foreach ($port in $WSDPort) {
-            
+
             Try {
 
                 $Subkeys = (Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText $Port) -replace '^[^\\]*', 'HKLM:'
 
-
                 $Subkeys | ForEach-Object {
-        
-                    if ($_ -like '*PrinterDriverData') {
-        
-                        $KeyProps = Get-ItemProperty -Path $_
-        
-                        $props = @{
-        
-                            'WsdPort' = $Port
 
+                    if ($_ -like '*PrinterDriverData') {
+
+                        $KeyProps = Get-ItemProperty -Path $_
+
+                        $props = @{
+
+                            'WsdPort'   = $Port
                             'IPAddress' = ($KeyProps.HPEWSIPAddress).Split(',')[0]
-        
+
                         }
-        
+
                         $Object = New-Object -TypeName PSObject -Property $props
                         $object.PSObject.typenames.insert(0,'WSDPort.IPAddress')
                         Write-Output -InputObject $Object
-        
+
                     }
-        
+
                 }
 
             } Catch {
-            
+
                 # get error record
                 [Management.Automation.ErrorRecord]$e = $_
 
                 # retrieve information about runtime error
                 $info = [PSCustomObject]@{
-                
+
                   Exception = $e.Exception.Message
                   Reason    = $e.CategoryInfo.Reason
                   Target    = $e.CategoryInfo.TargetName
                   Script    = $e.InvocationInfo.ScriptName
                   Line      = $e.InvocationInfo.ScriptLineNumber
                   Column    = $e.InvocationInfo.OffsetInLine
-                  
+
                 }
-                
+
                 # output information. Post-process collected info, and log info (optional)
                 $info
-                
+
             }
 
         }

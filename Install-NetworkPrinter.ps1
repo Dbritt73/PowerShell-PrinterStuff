@@ -1,4 +1,3 @@
-
 function Install-NetworkPrinter {
 <#
 .Synopsis
@@ -21,7 +20,7 @@ function Install-NetworkPrinter {
         [String]$IP,
 
         [String]$PrinterName
-        
+
     )
 
     Begin {}
