@@ -1,21 +1,19 @@
 Function Search-RemoteRegistryHive {
     <#
-    
         .SYNOPSIS
         Search Registry path for specific keyword
-    
+
         .DESCRIPTION
         Search-RegistryHive will search the given path for specifc keywords and output the full path to Registry keys
-        that contain that keyword 
-    
+        that contain that keyword
+
         .EXAMPLE
         Search-RegistryHive -path 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers' -searchText $Port
-    
+
         Example searching the registry for printers that match the $port search text criteria
-    
+
         .NOTES
         Works on PowerShell 3.0 and higher
-    
     #>
     [CmdletBinding()]
     Param (
@@ -28,15 +26,17 @@ Function Search-RemoteRegistryHive {
         [String]$path,
 
         [Parameter()]
-        [String]$ComputerName 
+        [String]$ComputerName
 
     )
 
-    Invoke-Command -ComputerName $ComputerName -ScriptBlock {Get-ChildItem -Path $Using:path -Recurse | ForEach-Object {
+    Invoke-Command -ComputerName $ComputerName -ScriptBlock {
+
+        Get-ChildItem -Path $Using:path -Recurse | ForEach-Object {
 
             if ((Get-itemproperty -Path $_.pspath) -match $Using:searchText) {
 
-                $_.Name
+                Write-Output -InputObject $_.Name
 
             }
 
@@ -45,6 +45,7 @@ Function Search-RemoteRegistryHive {
     }
 
 }
+
 
 Function Get-RemoteWSDPortIP {
   <#
@@ -79,7 +80,7 @@ Function Get-RemoteWSDPortIP {
     [CmdletBinding()]
     Param (
 
-    [String[]]$ComputerName
+        [String[]]$ComputerName
 
     )
 
@@ -97,11 +98,11 @@ Function Get-RemoteWSDPortIP {
 
                     $Params = @{
 
-                        'Path' = 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers';
-                        'SearchText' = "$Port";
-                        'ComputerName' = "$Computer"
-    
-                    }    
+                        'Path'         = 'HKLM:\SYSTEM\ControlSet001\Control\Print\Printers'
+                        'SearchText'   = $Port
+                        'ComputerName' = $Computer
+
+                    }
 
                     $Subkeys = (Search-RemoteRegistryHive @Params) -replace '^[^\\]*', 'HKLM:'
 
@@ -109,17 +110,21 @@ Function Get-RemoteWSDPortIP {
 
                         if ($_ -like '*PrinterDriverData') {
 
-                            $KeyProps = Invoke-Command -ScriptBlock {Get-ItemProperty -Path $Using:_} -ComputerName $Computer
+                            $Splat = @{
+
+                                'ScriptBlock' = {Get-ItemProperty -Path $Using:_}
+                                'ComputerName' = $Computer
+
+                            }
+
+                            $KeyProps = Invoke-Command @Splat
 
                             $props = [Ordered]@{
 
                                 'ComputerName' = $Computer
-
-                                'Printer' = ($Printer | Where-Object {$_.PortName -eq $Port}).Name
-
-                                'WsdPort' = $Port
-
-                                'IPAddress' = ($KeyProps.HPEWSIPAddress).Split(',')[0]
+                                'Printer'      = ($Printer | Where-Object {$_.PortName -eq $Port}).Name
+                                'WSDPort'      = $Port
+                                'IPAddress'    = ($KeyProps.HPEWSIPAddress).Split(',')[0]
 
                             }
 
@@ -151,7 +156,7 @@ Function Get-RemoteWSDPortIP {
                 }
 
                 # output information. Post-process collected info, and log info (optional)
-                $info
+                Write-Output -InputObject $info
 
             }
 
