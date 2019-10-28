@@ -6,7 +6,7 @@ Function Get-ComputerOU {
        Get-ComputerOU uses a System.DirectoryServices object to traverse
        Active Directory for the location in the structure of the computer.
        Information output is the computer name and the last 3 instances of
-       the OU structure the computer object resides. 
+       the OU structure the computer object resides.
     .EXAMPLE
        Get-ComputerOU -ComputerName SERVER1
     .EXAMPLE
@@ -47,8 +47,7 @@ Function Get-ComputerOU {
                 $Properties = @{
 
                     'ComputerName' = $Computer
-
-                    'OrgUnit' = $OUName3 + '-' + $OUName2 + '-' + $ouname1
+                    'OrgUnit'      = $OUName3 + '-' + $OUName2 + '-' + $ouname1
 
                 }
 
@@ -56,7 +55,8 @@ Function Get-ComputerOU {
                 $Obj.PSObject.TypeNames.Insert(0,'PC.OrgUnit')
                 Write-Output -InputObject $Obj
 
-                if ($obj -eq $Null) {
+                #if ($obj -eq $Null) {
+                if ($Null -eq $obj) {
 
                     Write-Error -Message 'Unable to find Computer OU based off computername' -ErrorAction 'Stop'
 
@@ -72,14 +72,14 @@ Function Get-ComputerOU {
             # retrieve information about runtime error
             $info = [PSCustomObject]@{
 
-              Date         = Get-Date
-              ComputerName = $ENV:computerName
-              Exception    = $e.Exception.Message
-              Reason       = $e.CategoryInfo.Reason
-              Target       = $e.CategoryInfo.TargetName
-              Script       = $e.InvocationInfo.ScriptName
-              Line         = $e.InvocationInfo.ScriptLineNumber
-              Column       = $e.InvocationInfo.OffsetInLine
+                Date         = Get-Date
+                ComputerName = $ENV:computerName
+                Exception    = $e.Exception.Message
+                Reason       = $e.CategoryInfo.Reason
+                Target       = $e.CategoryInfo.TargetName
+                Script       = $e.InvocationInfo.ScriptName
+                Line         = $e.InvocationInfo.ScriptLineNumber
+                Column       = $e.InvocationInfo.OffsetInLine
 
             }
 
@@ -90,7 +90,7 @@ Function Get-ComputerOU {
 
     }
 
-    End{}
+    End {}
 
 } #Get-ComputerOU
 
@@ -145,7 +145,7 @@ Function Set-LabPrinters {
                 $PrinterConnections = @{
 
                     'ConnectionName' = "$ServerAddress\$DefaultPrinter"
-                    'ErrorAction' = 'stop'
+                    'ErrorAction'    = 'stop'
 
                 }
 
@@ -163,7 +163,7 @@ Function Set-LabPrinters {
                 $PrinterConnections = @{
 
                     'ConnectionName' = "$ServerAddress\$PrinterSecondary"
-                    'ErrorAction' = 'Stop'
+                    'ErrorAction'    = 'Stop'
 
                 }
 
@@ -177,7 +177,7 @@ Function Set-LabPrinters {
                 $PrinterConnections = @{
 
                     'ConnectionName' = "$ServerAddress\$PrinterThird"
-                    'ErrorAction' = 'Stop'
+                    'ErrorAction'    = 'Stop'
 
                 }
 
@@ -193,15 +193,15 @@ Function Set-LabPrinters {
             # retrieve information about runtime error
             $info = [PSCustomObject]@{
 
-              Date         = Get-Date
-              ComputerName = $ENV:computerName
-              UserName     = $env:USERNAME
-              Exception    = $e.Exception.Message
-              Reason       = $e.CategoryInfo.Reason
-              Target       = $e.CategoryInfo.TargetName
-              Script       = $e.InvocationInfo.ScriptName
-              Line         = $e.InvocationInfo.ScriptLineNumber
-              Column       = $e.InvocationInfo.OffsetInLine
+                Date         = Get-Date
+                ComputerName = $ENV:computerName
+                UserName     = $env:USERNAME
+                Exception    = $e.Exception.Message
+                Reason       = $e.CategoryInfo.Reason
+                Target       = $e.CategoryInfo.TargetName
+                Script       = $e.InvocationInfo.ScriptName
+                Line         = $e.InvocationInfo.ScriptLineNumber
+                Column       = $e.InvocationInfo.OffsetInLine
 
             }
 
@@ -291,15 +291,15 @@ Function Set-Win7Printers {
             # retrieve information about runtime error
             $info = [PSCustomObject]@{
 
-              Date         = Get-Date
-              ComputerName = $ENV:computerName
-              UserName     = $env:USERNAME
-              Exception    = $e.Exception.Message
-              Reason       = $e.CategoryInfo.Reason
-              Target       = $e.CategoryInfo.TargetName
-              Script       = $e.InvocationInfo.ScriptName
-              Line         = $e.InvocationInfo.ScriptLineNumber
-              Column       = $e.InvocationInfo.OffsetInLine
+                Date         = Get-Date
+                ComputerName = $ENV:computerName
+                UserName     = $env:USERNAME
+                Exception    = $e.Exception.Message
+                Reason       = $e.CategoryInfo.Reason
+                Target       = $e.CategoryInfo.TargetName
+                Script       = $e.InvocationInfo.ScriptName
+                Line         = $e.InvocationInfo.ScriptLineNumber
+                Column       = $e.InvocationInfo.OffsetInLine
 
             }
 
@@ -334,25 +334,19 @@ $PrinterConfig | ForEach-Object {
 
                 $LabPrinterParams = @{
 
-                    'ServerAddress' = $_.ServerAddress
-
-                    'DefaultPrinter' = $_.DefaultPrinter
-
+                    'ServerAddress'    = $_.ServerAddress
+                    'DefaultPrinter'   = $_.DefaultPrinter
                     'PrinterSecondary' = $_.PrinterSecondary
-
-                    'PrinterThird' = $_.PrinterThird
-
-                    'ErrorLog' = "$ENV:WINDIR\Temp\LabPrinterMapping.log"
-
-                    'ErrorAction' = 'Stop'
+                    'PrinterThird'     = $_.PrinterThird
+                    'ErrorLog'         = "$ENV:WINDIR\Temp\LabPrinterMapping.log"
+                    'ErrorAction'      = 'Stop'
 
 
                 }
 
                 $OSWMI = @{
 
-                    'class' = 'Win32_operatingSystem'
-
+                    'class'       = 'Win32_operatingSystem'
                     'ErrorAction' = 'stop'
 
                 }
@@ -374,8 +368,7 @@ $PrinterConfig | ForEach-Object {
 
                 $PrinterWMI = @{
 
-                    'Class' = 'Win32_Printer'
-
+                    'Class'       = 'Win32_Printer'
                     'ErrorAction' = 'Stop'
 
                 }
@@ -396,15 +389,15 @@ $PrinterConfig | ForEach-Object {
                 # retrieve information about runtime error
                 $info = [PSCustomObject]@{
 
-                  Date         = Get-Date
-                  ComputerName = $ENV:computerName
-                  UserName     = $env:USERNAME
-                  Exception    = $e.Exception.Message
-                  Reason       = $e.CategoryInfo.Reason
-                  Target       = $e.CategoryInfo.TargetName
-                  Script       = $e.InvocationInfo.ScriptName
-                  Line         = $e.InvocationInfo.ScriptLineNumber
-                  Column       = $e.InvocationInfo.OffsetInLine
+                    Date         = Get-Date
+                    ComputerName = $ENV:computerName
+                    UserName     = $env:USERNAME
+                    Exception    = $e.Exception.Message
+                    Reason       = $e.CategoryInfo.Reason
+                    Target       = $e.CategoryInfo.TargetName
+                    Script       = $e.InvocationInfo.ScriptName
+                    Line         = $e.InvocationInfo.ScriptLineNumber
+                    Column       = $e.InvocationInfo.OffsetInLine
 
                 }
 
