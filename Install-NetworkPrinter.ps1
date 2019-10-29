@@ -15,12 +15,16 @@ function Install-NetworkPrinter {
     [CmdletBinding()]
     Param (
 
+        [Parameter(Mandatory = $true)]
         [String]$INF,
 
+        [Parameter(Mandatory = $true)]
         [String]$Driver,
 
+        [Parameter(Mandatory = $true)]
         [String]$IP,
 
+        [Parameter(Mandatory = $true)]
         [String]$PrinterName
 
     )
@@ -29,25 +33,29 @@ function Install-NetworkPrinter {
 
     Process {
 
-        Write-Verbose -Message "Creating TCP/IP Printer Port for $PrinterName"
-        Add-PrinterPort -Name "$IP" -PrinterHostAddress "$IP"
+        Try {
 
-        Write-Verbose -Message 'Import INF file to Windows Driver Store'
-        $argumentlist = @(
+            Write-Verbose -Message "Creating TCP/IP Printer Port for $PrinterName with address of $IP"
+            Add-PrinterPort -Name "$IP" -PrinterHostAddress "$IP"
 
-            '-I'
-            '-A'
-            "$INF"
+            Write-Verbose -Message 'Import INF file to Windows Driver Store'
+            $argumentlist = @(
 
-        )
-        #pnputil.exe -I -A "$INF"
-        Start-Process -FilePath "pnputil.exe" -ArgumentList $argumentlist -Wait -NoNewWindow
+                '-I'
+                '-A'
+                "$INF"
 
-        Write-Verbose -Message "Install printer driver for $printername"
-        Add-PrinterDriver -Name "$Driver"
+            )
 
-        Write-Verbose -Message "Configuring $PrinterName"
-        Add-Printer -Name "$PrinterName" -DriverName "$Driver" -PortName "$IP"
+            Start-Process -FilePath "pnputil.exe" -ArgumentList $argumentlist -Wait -NoNewWindow
+
+            Write-Verbose -Message "Install printer driver for $printername"
+            Add-PrinterDriver -Name "$Driver"
+
+            Write-Verbose -Message "Configuring $PrinterName"
+            Add-Printer -Name "$PrinterName" -DriverName "$Driver" -PortName "$IP"
+
+        } Catch {}
 
     }
 
