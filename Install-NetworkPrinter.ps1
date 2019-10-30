@@ -15,16 +15,20 @@ function Install-NetworkPrinter {
     [CmdletBinding()]
     Param (
 
-        [Parameter(Mandatory = $true)]
-        [String]$INF,
+        [Parameter( Mandatory = $true,
+                    HelpMessage = 'File path to inf file')]
+        [String]$InfPath,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter( Mandatory = $true,
+                    HelpMessage = 'Name of driver as found in inf file')]
         [String]$Driver,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter( Mandatory = $true,
+                    HelpMessage = 'IP address of network printer to install')]
         [String]$IP,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter( Mandatory = $true,
+                    HelpMessage = 'What you want to name the printer')]
         [String]$PrinterName
 
     )
@@ -43,7 +47,7 @@ function Install-NetworkPrinter {
 
                 '-I'
                 '-A'
-                "$INF"
+                "$InfPath"
 
             )
 
